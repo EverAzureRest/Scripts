@@ -51,7 +51,7 @@ $paramhash = @{
                }
                
 $cred = Get-AutomationPSCredential -Name $AutomationAccountName
-Login-AzureRmAccount -Credential $cred -SubscriptionName $subscriptionName -TenantId 
+Login-AzureRmAccount -Credential $cred -SubscriptionName $subscriptionName
 
 $rg = Get-AzureRmResourceGroup -Name $ResourceGroupName -ea 0
 if (!($rg))

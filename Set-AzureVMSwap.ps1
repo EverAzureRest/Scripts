@@ -16,7 +16,7 @@
   No Outputs
  
 .NOTES
-  Version:        0.1
+  Version:        0.2
   Author:         Jordan Smith
   Company:        Microsoft Corporation
   Creation Date:  05.22.2017
@@ -42,7 +42,7 @@ param($swapvolume,$NewDriveLetter)
 
 $pf = gwmi -Class Win32_PageFileSetting
 
-if (!($pf.Name.ToLower().Contains('d:')))
+if (!($pf) -or ($pf.Name.ToLower().Contains('d:')))
     {
 
     Get-Partition -driveletter $swapvolume.driveletter | Set-partition -newdriveletter $NewDriveLetter

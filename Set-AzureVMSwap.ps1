@@ -42,7 +42,7 @@ param($swapvolume,$NewDriveLetter)
 
 $pf = gwmi -Class Win32_PageFileSetting
 
-if (!($pf) -or ($pf.Name.ToLower().Contains('d:')))
+if (!($pf) -or (!($pf.Name.ToLower().Contains('d:'))))
     {
 
     Get-Partition -driveletter $swapvolume.driveletter | Set-partition -newdriveletter $NewDriveLetter

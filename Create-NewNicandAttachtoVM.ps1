@@ -7,7 +7,7 @@ $targetVnetName = ""
 $subscriptionName = ""
 
 
-#Login-AzureRmAccount
+Login-AzureRmAccount
 
 Set-AzureRmContext -SubscriptionName $subscriptionName
 

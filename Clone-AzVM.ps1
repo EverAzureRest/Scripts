@@ -6,7 +6,8 @@ param(
     [Parameter(Mandatory = $true)][int]$numberOfClones,
     $SubscriptionName,
     $TenantID,
-    $TargetResourceGroupName
+    $TargetResourceGroupName,
+    $CloneVMNamePrefix
 )
 
 if ($null -eq $startingNumber){
@@ -25,7 +26,11 @@ if ($null -eq $TargetResourceGroupName){
     $TargetResourceGroupName = $ResourceGroupName
 }
 
-$cloneRange = $startingNumber..($numberOfClones-$startingNumber)-1
+if ($null -eq $CloneVMNamePrefix){
+    $CloneVMNamePrefix = $TargetVMName
+}
+
+$cloneRange = $startingNumber..($numberOfClones+$startingNumber)
 
 $existingVMObj = Get-AzVM -ResourceGroupName $ResourceGroupName -Name $TargetVMName
 
@@ -39,11 +44,11 @@ if ($nic.IpConfigurations.PublicIpAddress.Id){
 }
 
 foreach ($i in $cloneRange){
-    $vmName = ($TargetVMName + '-clone' + $i)
+    $vmName = ($CloneVMNamePrefix + $i)
     $diskConfig = New-AzDiskConfig -SourceResourceId $snapShot.Id -SkuName $snapShot.Sku.Name -OsType $snapShot.OsType -Location $existingVMObj.Location -CreateOption copy
     $disk = New-AzDisk -ResourceGroupName $TargetResourceGroupName -Disk $diskConfig -DiskName ($vmName + '-osdisk')
     if ($pubIpObj){
-        $publicIP = New-AzPublicIpAddress -Name ($vmName + '-publicIp') -ResourceGroupName $TargetResourceGroupName -Location $existingVMObj.Location -DomainNameLabel ($pubIpObj.DnsSettings.DomainNameLabel + $i) -AllocationMethod $pubIpObj.PublicIpAllocationMethod -Sku $pubIpObj.Sku
+        $publicIP = New-AzPublicIpAddress -Name ($vmName + '-publicIp') -ResourceGroupName $TargetResourceGroupName -Location $existingVMObj.Location -DomainNameLabel ($pubIpObj.DnsSettings.DomainNameLabel + $i) -AllocationMethod $pubIpObj.PublicIpAllocationMethod -Sku $pubIpObj.Sku.Name
         $vmNic = New-AzNetworkInterface -Name ($vmName.ToLower()+'-nic') -ResourceGroupName $TargetResourceGroupName -Location $existingVMObj.Location -SubnetId $nic.IpConfigurations[0].Subnet.Id -PublicIpAddressId $publicIP.Id
     }
     else {
